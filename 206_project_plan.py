@@ -37,7 +37,7 @@ national_parks = []
 class NationalPark(object):
     def __init__(self, text_from_site):
         self.text = text_from_site
-        self.contact_number = 1
+        #self.contact_number = 1
         #list or string to be determined later
        
 
