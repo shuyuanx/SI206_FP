@@ -158,7 +158,6 @@ cur.execute(statement, movie_data)
 
 # Set up a table Tweets for tweets
 # Write code to drop the Tweets table if it exists, and create the table (so you can run the program over and over), with the correct (4) column names and appropriate types for each.
-# HINT: Remember that the time_posted column should be the TIMESTAMP data type!
 cur.execute('DROP TABLE IF EXISTS Tweets')
 
 table_spec = 'CREATE TABLE IF NOT EXISTS '
@@ -171,8 +170,12 @@ cur.execute(table_spec)
 
 statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
 
-#get twitters later
-twitters = []
+#add more twitter information to twitters later
+twitters = twitter_result1 
+
+print(twitters)
+
+# input the data for twitters into the table Tweets
 for tweet in twitters:
 	tweet_info = []
 	tweet_info.append(tweet["id"])
@@ -185,21 +188,33 @@ for tweet in twitters:
 # Use the database connection to commit the changes to the database
 conn.commit()
 
+#remember to close the connection to the database file after done with modifying and getting data from database to avoid unexpected results
+conn.close()
 
 #make three more calls to the get movie data function
+
+
+
 #create three instances of class Movie using the data obtained above
-#add the data to the table Movies
+
+
+#add more data to the table Movies
+
 
 #make three more calls to the get data from twitter function
+
+
 #instantiate the class Tweet to get data from twitter here
-#add the data to the table Tweets
+
+
+#add more data to the table Tweets
 
 #invoke the main function
 #if __name__ == "__main__":
 	#main()
 
 
-# Write your test cases here.
+# Write more test cases here.
 # Those tests will be modifies
 # Modify these tests and add more teste later. Need to test the functions and the classes as well.
 class test_class_Movie(unittest.TestCase):
