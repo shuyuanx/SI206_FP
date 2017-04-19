@@ -235,36 +235,35 @@ class test_class_Movie(unittest.TestCase):
 		self.assertEqual(type(movie1.released), type("actors"))
 
 class class_Twitter(unittest.TestCase):
-	def test_article_ctor(self):
+	def test_twitter(self):
 		list = []
-		article1 = Article(text_from_site)
-		self.assertEqual(type(article1.authors), type(list))
+		tweet1 = Tweet(text_from_site)
+		self.assertEqual(type(tweet1.numLiked), type(123))
 
-	def test_get_author(self):
-		article1 = Article(text_from_site)
+	def test_get_text(self):
 		string = ""
-		self.assertEqual(type(article1.get_author()), type(string))
+		tweet1 = Tweet(text_from_site)
+		self.assertEqual(type(twee1.get_some_text()), type("sdf"))
 
 	def test_get_description(slef):
-	    string = ""
-	    article1 = Article(text_from_site)
-	    self.assertEqual(type(article1.get_description()), type(string))
+		string = ""
+		tweet1 = Tweet(text_from_site)
+		self.assertEqual(type(tweet1.retweets), type(43))
 
-class class_Authors(unittest.TestCase):
-	def test_author_ctor(self):
+class class_test_other(unittest.TestCase):
+	def test_author(self):
 		list = []
-		author1 = Author(text_from_site)
-		assertEqual(type(list), type(author1.articles))
+		movie1 = Movie({movie1_data})
+		assertEqual(type("2"), type(movie1.writer))
 
-	def	test_get_article(self):
-		author1 = Author(text_from_site)
+	def	test_get_data_twitter(self):
 		list = []
-		assertEqual(type(list), type(author1.articles))
+		assertEqual(type(list), type(twitter_result1))
 
-	def test_get_article_number(self):
-		author1 = Author(text_from_site)
+	def test_get_movie_data(self):
+		dic = {}
 		number = 0;
-		assertEqual(type(number), type(author1.get_article_number()))
+		assertEqual(type(dic), type(movie1_data))
 
 ## Remember to invoke all your tests...
-##unittest.main(verbosity=2) 
+unittest.main(verbosity=2) 
