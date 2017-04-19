@@ -104,12 +104,39 @@ movie_ghost = {"Title":"Ghost","Year":"1990","Rated":"PG-13","Released":"13 Jul 
 
 #def main():
 
+#a list of string of movie names
+movie_names = []
+movie_names.append("ghost")
+movie_names.append("titanic")
+movie_names.append("Forrest Gump")
+
+print(type(movie_names))
+print(movie_names)
+
 #call the get_movie_data functions to get info about the movie ghost
-movie1_data = get_movie_data("ghost")
+movie1_data = get_movie_data(movie_names[0])
+movie2_data = get_movie_data(movie_names[1])
+movie3_data = get_movie_data(movie_names[2])
+print(type(movie1_data))
 print(movie1_data);
 
+movie_data_results = []
+movie_data_results.append(movie1_data)
+movie_data_results.append(movie2_data)
+movie_data_results.append(movie3_data)
+
+print(type(movie_data_results))
+print(movie_data_results)
+
 #create an instance of class movie that represents the movie ghost
-movie1 = Movie(movie1_data)
+movie1 = Movie(movie_data_results[0])
+movie2 = Movie(movie_data_results[1])
+movie3 = Movie(movie_data_results[2])
+
+movie_instances = []
+movie_instances.append(movie1)
+movie_instances.append(movie2)
+movie_instances.append(movie3)
 
 #call get data from twitter
 #get the tweets from the director of the first movie ghost
