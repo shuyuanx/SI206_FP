@@ -236,6 +236,12 @@ conn.close()
 
 #add more data to the table Tweets
 
+#parse twitter data
+
+#create another table
+
+#process data and create an output file
+
 #invoke the main function
 #if __name__ == "__main__":
 	#main()
