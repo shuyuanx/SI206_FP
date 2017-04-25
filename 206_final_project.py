@@ -127,7 +127,7 @@ class Movie(object):
 		return actors_list[0]
 
 	def __str__(self):
-		return "The movie named {} is released in {}, directed by {}. Actors include {}, and the writer is {}. The language of the movie is {}. It is rated {} by IMDB.".format(self.title, self.director, self.actors, self.writer, self.language, self.rating)
+		return "The movie named {} is released in {}, directed by {}. Actors include {}, and the writer is {}. The language of the movie is {}. It is rated {} by IMDB.".format(self.title, self.released, self.directors, self.actors, self.writer, self.language, self.rating)
 
 #class Tweet represent tweets about the word query(in this program, the directors)
 class Tweet(object):
@@ -149,7 +149,7 @@ class Tweet(object):
 # all the initializations and data processing happen in main function
 def main():
 	#can be deleted later
-	print("Main function runs")
+	#print("Main function runs")
 
 	#start with a list of string of movie names: 6 movies in total
 	movie_names = []
@@ -172,6 +172,12 @@ def main():
 	for data in movie_data_results:
 		movie_instances.append(Movie(data))
 
+	print("OUTPUT FOR MOVIE CLASS: ")
+	print()
+	for movie in movie_instances:
+		print(movie)
+		print()
+
 	#create instances of class tweet that represents the tweet about all directors in all movies
 	tweet_class_instances = []
 	#get all movies
@@ -182,6 +188,14 @@ def main():
 			#create the tweet object and store the object in the list
 			a_tweet_class = Tweet(director, movie.title, movie.imdbID)
 			tweet_class_instances.append(a_tweet_class)
+
+	print("OUTPUT FOR TWEET CLASS: ")
+	print()
+	for tweet in tweet_class_instances:
+		print(tweet)
+
+	print()
+
 
 	# TABLE DEFINITIONS AND INITIALIZATIONS:
 	# Make a connection to a new database movies_twitters.db
@@ -198,7 +212,7 @@ def main():
 	table_spec += 'num_languages TEXT, '
 	table_spec += 'languages TEXT, ' 
 	table_spec += 'IMDB_rating TEXT, ' 
-	table_spec += 'top_actor TEXT, ' 
+	table_spec += 'top_actor TEXT, '
 	table_spec += 'released TEXT, ' 
 	table_spec += 'writer TEXT)' 
 	
@@ -346,7 +360,7 @@ def main():
 	# 	print(one)
 
 	# THIRD QUERY
-	query = "SELECT tweet_text FROM Tweets"
+	query = "SELECT tweet_text FROM Tweets WHERE num_ret > num_fav"
 	cur.execute(query)
 	movie_tweets = cur.fetchall()
 
@@ -402,6 +416,18 @@ def main():
 	#print the summary and date
 	f.write("Twitter summary on April 25th, 2017. \n\n")
 
+	#print actors:
+	for movie in movie_instances:
+		f.write("Actors for movie ") 
+		f.write(movie.title)
+		f.write(" are: \n")
+		for actor in movie.get_list_of_actors():
+			f.write(actor)
+			f.write(", ")
+
+		f.write("\n")
+		f.write("\n")
+
 	# FIRST QUERY OUTPUT:
 	# print the most popular posters
 	f.write("Popular twitter posters(who have more than 5000 favorite counts) that posted about directors of movies in the list: \n")
@@ -432,7 +458,6 @@ def main():
 	i = 1;
 	for movie in diction_listvals:
 		f.write("The movie ")
-		print(movie[0])
 		f.write(movie[0])
 		f.write(" has the tweets: ")
 		for tweet in movie[1]:
@@ -452,63 +477,70 @@ def main():
 # have at least 1 test for each function
 class test_class_Movie(unittest.TestCase):
 	def test_class_ctor(self):
-		movie1 = Movie({movie1_data})
-		self.assertEqual(type(movie1.director, type("abs")))
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		self.assertEqual(type(movie1.title), type("abs"))
 
-	def test_get_writer(self):
-		movie1 = Movie({movie1_data})
-		self.assertEqual(type(movie1.get_list_of_actors(), type(["a","b"])))
+	def test_get_list_of_actors(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		self.assertEqual(type(movie1.get_list_of_actors()), type(["a","b"]))
 
-	def test_get_actors(self):
-		movie1 = Movie({movie1_data})
-		self.assertEqual(type(movie1.actors), type("actors"))
+	def test_get_num_languages(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		self.assertEqual(type(movie1.get_num_languages()), type(1))
 
-	def test_process_data(self):
-		movie1 = Movie({movie1_data})
-		self.assertEqual(type(movie1.released), type("actors"))
+	def test_get_list_of_directors(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		self.assertEqual(type(movie1.get_list_of_directors()), type(["actors"]))
+
+	def test_top_actor(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		self.assertEqual(type(movie1.get_top_actor()), type("actors"))
+
+	def test_str(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		self.assertEqual(type(movie1.__str__()), type("actors"))
 
 class class_Twitter(unittest.TestCase):
-	def test_twitter(self):
-		list = []
-		tweet1 = Tweet(text_from_site)
-		self.assertEqual(type(tweet1.numLiked), type(123))
+	def test_twitter_ctor(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		tweet1 = Tweet(movie1.get_list_of_directors()[0], movie1.title, movie1.imdbID)
+		self.assertEqual(type(tweet1.username), type("string"))
 
-	def test_get_text(self):
-		string = ""
-		tweet1 = Tweet(text_from_site)
-		self.assertEqual(type(twee1.get_some_text()), type("sdf"))
+	def test_get_info(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		tweet1 = Tweet(movie1.get_list_of_directors()[0], movie1.title, movie1.imdbID)
+		self.assertEqual(type(tweet1.get_info()), type({"dic": "tionary"}))
 
-	def test_get_description(slef):
-		string = ""
-		tweet1 = Tweet(text_from_site)
-		self.assertEqual(type(tweet1.retweets), type(43))
+	def test_str(self):
+		movie1_data = get_movie_data("ghost")
+		movie1 = Movie(movie1_data)
+		tweet1 = Tweet(movie1.get_list_of_directors()[0], movie1.title, movie1.imdbID)
+		self.assertEqual(type(tweet1.__str__()), type("output in format"))
 
-class class_test_other(unittest.TestCase):
-	def test_author(self):
-		list = []
-		movie1 = Movie({movie1_data})
-		assertEqual(type("2"), type(movie1.writer))
-
-	def	test_get_data_twitter(self):
-		list = []
-		assertEqual(type(list), type(twitter_result1))
-
+class class_test_functions(unittest.TestCase):
 	def test_get_movie_data(self):
-		dic = {}
-		number = 0;
-		assertEqual(type(dic), type(movie1_data))
+		movie1_data = get_movie_data("ghost")
+		self.assertEqual(type(movie1_data), type({"id": "1231293809782"}))
 
+	def	test_get_data_from_twitter(self):
+		twitter_data1 = get_data_from_twitter("James Cameron")
+		self.assertEqual(type(twitter_data1), type({"text": "James Cameron, the director of Avantar"}))
 
+	def test_get_user_data(self):
+		user_data1 = get_user_data("umsi")
+		self.assertEqual(type(user_data1), type({"favorite_counts": "2342"}))
 
 # INVOKE MAIN FUNCTION:
 if __name__ == "__main__":
 	main()
 
 # INVOKE TEST CASES
-#unittest.main(verbosity=2) 
-
-
-#output to file
-#test cases
-#documentation
-#wrap it up
+unittest.main(verbosity=2) 

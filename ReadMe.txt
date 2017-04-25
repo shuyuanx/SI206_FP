@@ -26,8 +26,7 @@ DEPENDENCIES:
     •“twitter_info.py”: a twitter authentication file. It should include consumer_key, consumer_secret, access_token, access_token_secret.
   
 FILES NEEDED:
-  none
-  No additional files needs to be included for this program to run, except the modules and “twitter_info.py” mentioned above
+  No additional files need to be included for this program to run, except the modules and “twitter_info.py” mentioned above.
 
 FUNCTIONS:
   •Name:  get_movie_data
@@ -138,7 +137,7 @@ DATA MANIPULATION:
   The program finds tweets that are tweeted more than or equal to 3 times, and it gets the movies that the director related to the tweets directs and outputs the title of the movie, the number of languages of the movie, and what those languages are to the output file. It is useful for people who are interested in watching the movie to check if there is a version that’s in their language. 
 
   Third Query:
-  Among all tweets about the directors, it finds tweets that are retweeted from others, and get ride of the RT prefix of the tweets. It shows only the contents of the retweeted tweets on the output file. This information informs users the popular topics about the directors and the movies.
+  Among all tweets that are retweeted more than favorited, it finds tweets that are retweeted from others, and get ride of the RT prefix of the tweets. It shows only the contents of the retweeted tweets on the output file. This information informs users the popular topics about the directors and the movies.
 
   Fourth Query:
   It filters all tweets that have more than 0 favorites. It groups all tweets that satisfies the requirement into groups by the movie that the director(which the tweets is about) directs. The user is able to see all tweets related to each movie that has ever been favorited. This helps the user know more information about the movies, and it’s particular useful because it filters out the tweets that people don’t think are useful or interesting.   
