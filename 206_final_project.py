@@ -128,11 +128,13 @@ class Movie(object):
 
 class Tweet(object):
 	#define later: needs to represent twitter info for a user. I would search the directors for the movies, so this class will represent the tweets written by directors. 
-	def __init__(self, name_in):
-		self.name = name_in
+	def __init__(self, username_in, from_movie, from_movie_id):
+		self.username = username_in
+		self.movie = from_movie
+		self.movie_id = from_movie_id
 
 	def get_info(self):
-		self.info = get_data_from_twitter(name)
+		self.info = get_data_from_twitter(self.username)
 		return self.info
 
 	# def parse_data(self):
@@ -144,7 +146,7 @@ class Tweet(object):
 	# 		tweet_info["mentioned"]
 
 	def __str__(self):
-		return "The person's name is {}.".format(self.name)
+		return "The person's name is {}.".format(self.username)
 
 #write the main function: write the class instantiation and function calls in main. The process of actually obtaining and parsing data should go in main here. 
 
@@ -152,10 +154,13 @@ class Tweet(object):
 
 #a list of string of movie names
 movie_names = []
-movie_names.append("ghost")
-movie_names.append("titanic")
+movie_names.append("Avatar")
+movie_names.append("The Day After Tomorrow")
 movie_names.append("Forrest Gump")
-movie_names.append("Zootopia")
+movie_names.append("titanic")
+movie_names.append("ghost")
+movie_names.append("zootopia")
+
 
 
 #call the get_movie_data functions to get info about the movie ghost
@@ -185,13 +190,21 @@ for data in movie_data_results:
 
 #call get data from twitter
 #get the tweets from the director of the first movie ghost
-twitter_directors = [];
+
+
+# twitter_directors = [];
+# for movie in movie_instances:
+# 	directors = movie.get_list_of_directors()
+# 	for director in directors:
+# 		twitter_directors.append(get_data_from_twitter(director))
+# 		print(director)
+
+tweet_class_instances = []
 for movie in movie_instances:
 	directors = movie.get_list_of_directors()
 	for director in directors:
-		twitter_directors.append(get_data_from_twitter(director))
-		print(director)
-
+		a_tweet_class = Tweet(director, movie.title, movie.imdbID)
+		tweet_class_instances.append(a_tweet_class)
 
 #set up a table Movies for movies and input the data into the table
 # Make a connection to a new database tweets.db, and create a variable to hold the database cursor.
@@ -205,7 +218,8 @@ table_spec = 'CREATE TABLE IF NOT EXISTS '
 table_spec += 'Movies (id TEXT PRIMARY KEY, ' 
 table_spec += 'title TEXT, ' 
 table_spec += 'director TEXT, ' 
-table_spec += 'num_languages TEXT, ' 
+table_spec += 'num_languages TEXT, '
+table_spec += 'languages TEXT, ' 
 table_spec += 'IMDB_rating TEXT, ' 
 table_spec += 'top_actor TEXT, ' 
 table_spec += 'released TEXT, ' 
@@ -214,7 +228,7 @@ cur.execute(table_spec)
 conn.commit()
 
 #insert the data for movie ghost into the table Movies database
-statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
 #in the future loop, a int count will be initialized and increased in each iteration.
 #this int will be the primary key and id for the movie in the database
@@ -224,6 +238,7 @@ for movie in movie_instances:
 	movie_data.append(movie.title)
 	movie_data.append(movie.directors)
 	movie_data.append(movie.get_num_languages())
+	movie_data.append(movie.language)
 	movie_data.append(movie.rating)
 	movie_data.append(movie.get_top_actor())
 	movie_data.append(movie.released)
@@ -242,32 +257,43 @@ table_spec = 'CREATE TABLE IF NOT EXISTS '
 table_spec += 'Tweets (tweet_id INTEGER PRIMARY KEY, '
 table_spec += 'tweet_text TEXT, '  
 table_spec += 'poster TEXT, ' 
+#table_spec += 'FOREIGN KEY(poster) REFERENCES Movies(id) ON UPDATE SET NULL, '
+table_spec += 'poster_id TEXT, ' 
 table_spec += 'from_movie TEXT, ' 
+table_spec += 'from_movie_id TEXT, ' 
 table_spec += 'num_fav INTEGER, ' 
 table_spec += 'num_ret INTEGER)' 
 cur.execute(table_spec)
 
-statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?, ?)'
+statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 
 #this stores all the user names for the future use for User table
 all_users = []
+all_tweet_id = []
 
-for director in twitter_directors:
-	for tweet in director["statuses"]:
-		tweet_info = []
-		tweet_info.append(tweet["id"])
-		tweet_info.append(tweet["text"])
-		tweet_info.append(tweet["user"]["screen_name"])
-		#tweet_info.append(tweet["user"]["id"])
-		tweet_info.append("movie") #implement later
-		tweet_info.append(tweet["favorite_count"])
-		tweet_info.append(tweet["retweet_count"])
+for a_tweet in tweet_class_instances:
+	tweetinfo = a_tweet.get_info()
+	for tweet in tweetinfo["statuses"]:
+	#for tweet in director["statuses"]:
+		if tweet["id"] not in all_tweet_id: 
+			tweet_info = []
+			#print(json.dumps(tweet, indent = 4))
+			tweet_info.append(tweet["id"])
+			all_tweet_id.append(tweet["id"])
+			tweet_info.append(tweet["text"])
+			tweet_info.append(tweet["user"]["screen_name"])
+			tweet_info.append(tweet["user"]["id"])
+			#tweet_info.append(tweet["user"]["id"])
+			tweet_info.append(a_tweet.movie) 
+			tweet_info.append(a_tweet.movie_id)
+			tweet_info.append(tweet["favorite_count"])
+			tweet_info.append(tweet["retweet_count"])
 
-		all_users.append(tweet["user"]["screen_name"]) #the poster
-		for user in tweet["entities"]["user_mentions"]:  #all users mentioned in the tweet
-			all_users.append(user["screen_name"])
+			all_users.append(tweet["user"]["screen_name"]) #the poster
+			for user in tweet["entities"]["user_mentions"]:  #all users mentioned in the tweet
+				all_users.append(user["screen_name"])
 
-		cur.execute(statement, tweet_info)
+			cur.execute(statement, tweet_info)
 
 conn.commit()
 
@@ -290,7 +316,7 @@ all_users = set(all_users)
 for user in all_users:
 	user_result = get_user_data(user)
 	user_info = []
-	user_info.append(user_result["id_str"])
+	user_info.append(user_result["id"])
 	user_info.append(user_result["screen_name"])
 	user_info.append(user_result["favourites_count"])
 	user_info.append(user_result["description"])
@@ -298,11 +324,6 @@ for user in all_users:
 	cur.execute(statement, user_info)
 	conn.commit()
 
-# Use the database connection to commit the changes to the database
-conn.commit()
-
-#remember to close the connection to the database file after done with modifying and getting data from database to avoid unexpected results
-conn.close()
 
 #make three more calls to the get movie data function
 
@@ -332,6 +353,37 @@ conn.close()
 #if __name__ == "__main__":
 	#main()
 
+#process data and create an output file!
+#Make queries to the database to grab intersections of data, and then use at least four of the processing mechanisms in the project requirements to find out something interesting or cool or weird about it. 
+query = "SELECT poster, tweet_text, from_movie, Users.description FROM Tweets INNER JOIN Users on Tweets.poster_id=Users.user_id WHERE Users.num_fav > 5000" 
+cur.execute(query)
+tweets_from_popular_poster = cur.fetchall()
+
+
+popular_posters = [
+	one[0] 
+	for one in tweets_from_popular_poster
+	if len(one[0]) > 2
+] #contains the screen_names of popular posters
+
+query = "SELECT title, top_actor, num_languages, languages, Tweets.num_ret FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE Tweets.num_ret > 50" 
+cur.execute(query)
+movies_with_retweeted_tweets = cur.fetchall() #contains the movies that are talked about often on twitter
+
+
+query = "SELECT title, direcotor, released, Tweets.tweet_text FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE num_fav > 0"
+cur.execute(query)
+movies_with_favorite_tweets = cur.fetchall() #contains the movies about which tweets are favorited
+
+
+
+
+
+# Use the database connection to commit the changes to the database
+conn.commit()
+
+#remember to close the connection to the database file after done with modifying and getting data from database to avoid unexpected results
+conn.close()
 
 # Write more test cases here.
 # Those tests will be modifies
