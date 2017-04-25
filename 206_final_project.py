@@ -95,6 +95,7 @@ class Movie(object):
 	def __init__(self, movie_in):
 		self.title = movie_in["Title"]
 		#this is a string
+		self.imdbID = movie_in["imdbID"]
 		self.actors = movie_in["Actors"]
 		self.directors = movie_in["Director"]
 		self.writer = movie_in["Writer"]
@@ -106,9 +107,17 @@ class Movie(object):
 		actors_list = self.actors.split(",")
 		return actors_list
 
+	def get_num_languages(self):
+		languages = self.language.split(",")
+		return len(languages)
+
 	def get_list_of_directors(self):
 		directors_list = self.directors.split(",")
 		return directors_list
+
+	def get_top_actor(self):
+		actors_list = self.actors.split(",")
+		return actors_list[0]
 
 	def get_director(self):
 		return self.director
@@ -193,30 +202,32 @@ cur = conn.cursor()
 cur.execute('DROP TABLE IF EXISTS Movies')
 
 table_spec = 'CREATE TABLE IF NOT EXISTS '
-table_spec += 'movies (title TEXT PRIMARY KEY, ' 
-table_spec += 'writer TEXT, ' 
-table_spec += 'actors TEXT, ' 
+table_spec += 'Movies (id TEXT PRIMARY KEY, ' 
+table_spec += 'title TEXT, ' 
+table_spec += 'director TEXT, ' 
+table_spec += 'num_languages TEXT, ' 
+table_spec += 'IMDB_rating TEXT, ' 
+table_spec += 'top_actor TEXT, ' 
 table_spec += 'released TEXT, ' 
-table_spec += 'language TEXT, ' 
-table_spec += 'rating TEXT, ' 
-table_spec += 'director TEXT)' 
+table_spec += 'writer TEXT)' 
 cur.execute(table_spec)
 conn.commit()
 
 #insert the data for movie ghost into the table Movies database
-statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?)'
+statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 
 #in the future loop, a int count will be initialized and increased in each iteration.
 #this int will be the primary key and id for the movie in the database
 for movie in movie_instances:
 	movie_data = []
+	movie_data.append(movie.imdbID)
 	movie_data.append(movie.title)
-	movie_data.append(movie.writer)
-	movie_data.append(movie.actors)
-	movie_data.append(movie.released)
-	movie_data.append(movie.language)
-	movie_data.append(movie.rating)
 	movie_data.append(movie.directors)
+	movie_data.append(movie.get_num_languages())
+	movie_data.append(movie.rating)
+	movie_data.append(movie.get_top_actor())
+	movie_data.append(movie.released)
+	movie_data.append(movie.writer)
 
 	cur.execute(statement, movie_data)
 
@@ -286,29 +297,6 @@ for user in all_users:
 
 	cur.execute(statement, user_info)
 	conn.commit()
-
-
-	#for user in tweet["statuses"][0]["entities"]["user_mentions"]:
-		# print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-		# print(json.dumps(user, indent=4))
-
-		# print(user["screen_name"])
-		# print(user["id"])
-
-
-		#print(json.dumps(tweet["statuses"][10], indent=4))
-	
-
-	# for user in tweet["statuses"][0]["entities"]["user_mentions"]:
-	# 	print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-	# 	print(json.dumps(user, indent=4))
-
-	# 	print(user["screen_name"])
-	# 	print(user["id"])
-
-	# print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-
-
 
 # Use the database connection to commit the changes to the database
 conn.commit()
