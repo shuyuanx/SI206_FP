@@ -97,6 +97,76 @@ CLASSES:
       behavior:  prints the tweet object in certain format
       return value:  a string that contains information about tweet object in certain format
 
+DATABASE:
+  TABLE Movies:
+    •id: Primary Key
+         The unique id number from the OMBd database for the movie. (text)
+    •title:  the title of the movie (text)
+    •director:  the director(s) for the movie (text)
+    •num_languages:  the number of languages that the movie has (text)
+    •language:  the names of the languages the movies has (text)
+    •IMDB_Rating:  the rating on the IMDb database for the movie (text)
+    •top_actor:  the first actor in the list for the movie (text)
+    •released:  the date released (text)
+    •writer:  the writer(s) of the movie (text)
+
+  TABLE Tweets:
+    •tweet_id:  Primary Key
+                The unique id number for the tweet on twitter (int)
+    •tweet_text:  the content of the tweet (text)
+    •from_movie:  which movie the tweet’s director directs (text)
+    •from_movie_id:  the unique id number of the movie(text)
+    •num_fav:  how many people favorite this tweet (int)
+    •num_ret:  how many people retweet this tweet (int)
+    •poster:  the poster of the tweet’s screen name (text)
+    •poster_id:  Reference to the Users Table
+                 the poster’s unique id 
+
+  TABLE Users:
+    •user_id:  Primary Key
+               The unique id number for the user on twitter (text)
+    •screen_name:  the screen name of the user on twitter (text)
+    •num_fav:  how many people favorite this user (int)
+    •description:  a short description about the user in text (text)
+
+
+DATA MANIPULATION:
+  First Query:
+  The program find all posters who posted tweets that mentioned the directors of the movies in the list, and among those who are popular (favorited by more than 5000 people). The program outputs this information in the output file, and it helps user know who likes to talk about the movies. 
+
+  Second Query:
+  The program finds tweets that are tweeted more than or equal to 3 times, and it gets the movies that the director related to the tweets directs and outputs the title of the movie, the number of languages of the movie, and what those languages are to the output file. It is useful for people who are interested in watching the movie to check if there is a version that’s in their language. 
+
+  Third Query:
+  Among all tweets about the directors, it finds tweets that are retweeted from others, and get ride of the RT prefix of the tweets. It shows only the contents of the retweeted tweets on the output file. This information informs users the popular topics about the directors and the movies.
+
+  Fourth Query:
+  It filters all tweets that have more than 0 favorites. It groups all tweets that satisfies the requirement into groups by the movie that the director(which the tweets is about) directs. The user is able to see all tweets related to each movie that has ever been favorited. This helps the user know more information about the movies, and it’s particular useful because it filters out the tweets that people don’t think are useful or interesting.   
+ 
+
+REASONS FOR CHOOSING THE PROJECT:
+  This project seems interesting, because I will get data from two different databases, and gather the information together to make them make sense. I will get data about the intersection, and use data retrieved from one database to search for more data in the second database. It is very practical, and the same technique can be applied to many applications in the future. I am also interested in the OBDb database.  
+
+
+SPECIFIC NOTES FOR SI_206:
+Line(s) on which each of your data gathering functions begin(s):
+  
+Line(s) on which your class definition(s) begin(s):
+
+
+Line(s) where your database is created in the program:
+
+
+Line(s) of code that load data into your database:
+
+
+Line(s) of code (approx) where your data processing code occurs — where in the file can we see all the processing techniques you used?
+
+
+Line(s) of code that generate the output.
+
+
+OK to be approximate here — ok if it ends up off by 1 or 2. Make it easy for us to find!
 
 
 
