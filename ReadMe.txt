@@ -53,6 +53,50 @@ FUNCTIONS:
    Return Value:  none
    Behavior:  All instantiations of objects, all calls of functions, and data processing, output for files happen in main function. 
 
+CLASSES:
+  •Name:  Movie
+   Instance:  an instance represents one movie. It contains all the data like directors, actors, writers in the instance variables. 
+   Ctor input:  dictionary movie_in, which contains all the data about the movie. 
+   Method:
+     •name:  get_list_of_actors
+      input:  none
+      behavior:  retrieves the string variable actor in the class. It splits the string into list by “,” and returns the list.   
+      return value:  list actors_list that contains all actor names as strings
+
+     •name:  get_num_languages
+      input:  none
+      behavior:  retrieves the string variable language in the class. It splits the string into list by “,” and returns the length list 
+      return value:  int length of the language list
+
+     •name:  get_list_of_directors
+      input:  none
+      behavior:  retrieves the string variable directors in the class. It splits the string into list by “,” and returns the list. 
+      return value:  list directors_list that contains all directors names as string variables 
+
+     •name:  get_top_actor
+      input:  none
+      behavior:  retrieves the string variable actor in the class. It splits the string into list by “,” and returns the first element in the list
+      return value:  string variable contains the first actor for the movie
+
+	•name:  __str__ (print function)
+      input:  none
+      behavior:  prints the movie object in format when print() function is called
+      return value:  a string in a certain format
+
+  •Name:  Tweet
+   Instance:  an instance represent all tweets retrieved for one query word (in this case, the director’s name). It contains all information including poster of tweets, tweet text, etc.  
+   Ctor input:  string query word(the director’s name), string movie title that the director directs, string movie id 
+   Method:
+     •name: get_info
+      input:  none
+      behavior:  calls the get_data_from_twittter() function defined above, on the query word(director’s name), and stores the data in the instance variable self.info. Returns the dictionary.
+      return value:  dictionary that contains information about the tweets about the directory
+
+     •name: __str__ (print function)
+      input:  none
+      behavior:  prints the tweet object in certain format
+      return value:  a string that contains information about tweet object in certain format
+
 
 
 

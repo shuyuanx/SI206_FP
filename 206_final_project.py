@@ -126,9 +126,6 @@ class Movie(object):
 		actors_list = self.actors.split(",")
 		return actors_list[0]
 
-	def get_director(self):
-		return self.director
-
 	def __str__(self):
 		return "The movie named {} is released in {}, directed by {}. Actors include {}, and the writer is {}. The language of the movie is {}. It is rated {} by IMDB.".format(self.title, self.director, self.actors, self.writer, self.language, self.rating)
 
