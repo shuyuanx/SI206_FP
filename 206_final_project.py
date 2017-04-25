@@ -5,6 +5,7 @@ import json
 import twitter_info 
 import sqlite3
 import collections
+import re
 
 # Information stored in twitter_info.py file
 consumer_key = twitter_info.consumer_key
@@ -367,17 +368,32 @@ popular_posters = [
 	if len(one[0]) > 2
 ] #contains the screen_names of popular posters
 
-query = "SELECT title, top_actor, num_languages, languages, Tweets.num_ret FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE Tweets.num_ret > 50" 
+query = "SELECT title, top_actor, num_languages, languages, Tweets.num_ret, tweet_text FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE Tweets.num_ret > 50" 
 cur.execute(query)
 movies_with_retweeted_tweets = cur.fetchall() #contains the movies that are talked about often on twitter
 #built-in map
 movie_languages = map(lambda x: "Movie {} has {} language(s): {}.".format(x[0], x[2], x[3]), movies_with_retweeted_tweets)
 
-for one in movie_languages:
-	print(type(one))
-	print(one)
+# for one in movie_languages:
+# 	print(type(one))
+# 	print(one)
 
 #use regular expressions
+#list comprehension to generate a list of all tweet texts
+regex_result = []
+all_tweet_text = [
+	movie[5]
+	for movie in movies_with_retweeted_tweets
+]
+
+for text in all_tweet_text:
+	print(text)
+	regex = r"([0-9]+) ([^a-zA-Z]?[a-zA-Z]+)\b"
+	regex_result.append(re.match(regex, data, re.MULTILINE))
+
+for one in regex_result:
+	print(one)
+
 
 
 query = "SELECT title, Tweets.tweet_text FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE num_fav > 0"
@@ -387,8 +403,12 @@ movies_with_favorite_tweets = cur.fetchall() #contains the movies about which tw
 diction_listvals = collections.defaultdict(list)
 for k, v in movies_with_favorite_tweets:
 	diction_listvals[k].append(v)
+
+
 #sort by the movie title name and then print out
-print(sorted(diction_listvals.items()))
+# print(sorted(diction_listvals.items()))
+
+
 
 # Use the database connection to commit the changes to the database
 conn.commit()
