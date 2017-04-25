@@ -25,6 +25,7 @@ try:
 	cache_file = open(CACHE_FNAME,'r')
 	cache_contents = cache_file.read()
 	CACHE_DICTION = json.loads(cache_contents)
+	cache_file.close()
 except:
 	CACHE_DICTION = {}
 
@@ -50,7 +51,7 @@ def get_movie_data(movie_name):
 		CACHE_DICTION[unique_key] = movie_data 
 		f = open(CACHE_FNAME, 'w')
 		f.write(json.dumps(CACHE_DICTION))
-		f.close
+		f.close()
 
 	return movie_data
 
@@ -158,9 +159,10 @@ def main():
 	movie_names.append("Avatar")
 	movie_names.append("The Day After Tomorrow")
 	movie_names.append("Forrest Gump")
-	movie_names.append("titanic")
-	movie_names.append("ghost")
-	movie_names.append("zootopia")
+	movie_names.append("Titanic")
+	movie_names.append("Ghost")
+	movie_names.append("Frozen")
+	movie_names.append("Zootopia")
 
 	#call the get_movie_data function to get info about the movies in the list
 	movie_data_results = []
@@ -233,13 +235,14 @@ def main():
 	table_spec = 'CREATE TABLE IF NOT EXISTS '
 	table_spec += 'Tweets (tweet_id INTEGER PRIMARY KEY, '
 	table_spec += 'tweet_text TEXT, '  
-	table_spec += 'poster TEXT, ' 
-	#table_spec += 'FOREIGN KEY(poster) REFERENCES Movies(id) ON UPDATE SET NULL, '
-	table_spec += 'poster_id TEXT, ' 
+
 	table_spec += 'from_movie TEXT, ' 
 	table_spec += 'from_movie_id TEXT, ' 
 	table_spec += 'num_fav INTEGER, ' 
-	table_spec += 'num_ret INTEGER)' 
+	table_spec += 'num_ret INTEGER, ' 
+	table_spec += 'poster TEXT, ' 
+	table_spec += 'poster_id TEXT, ' 
+	table_spec += 'FOREIGN KEY(poster_id) REFERENCES Movies(id))'
 	
 	cur.execute(table_spec)
 
@@ -260,14 +263,14 @@ def main():
 				tweet_info.append(tweet["id"])
 				all_tweet_id.append(tweet["id"])
 				tweet_info.append(tweet["text"])
-				#have both the user's name and the id(the primary key for table Users)
-				tweet_info.append(tweet["user"]["screen_name"])
-				tweet_info.append(tweet["user"]["id"])
 				#have both the movie's name and the id(the primary key for table Movies)
 				tweet_info.append(a_tweet.movie) 
 				tweet_info.append(a_tweet.movie_id)
 				tweet_info.append(tweet["favorite_count"])
 				tweet_info.append(tweet["retweet_count"])
+				#have both the user's name and the id(the primary key for table Users)
+				tweet_info.append(tweet["user"]["screen_name"])
+				tweet_info.append(tweet["user"]["id"])
 
 				#add all the posters
 				all_users.append(tweet["user"]["screen_name"]) 
@@ -329,8 +332,8 @@ def main():
 	] 
 
 	# SECOND QUERY
-	# get all movies about which tweets are retweeted more than 50 times. Store a list of the movies in movies_with_retweeted_tweets
-	query = "SELECT title, top_actor, num_languages, languages, Tweets.num_ret FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE Tweets.num_ret > 50" 
+	# get all movies about which tweets are retweeted more than or equal to 3 times. Store a list of the movies in movies_with_retweeted_tweets
+	query = "SELECT title, top_actor, num_languages, languages, Tweets.num_ret FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE Tweets.num_ret >= 3" 
 	cur.execute(query)
 	movies_with_retweeted_tweets = cur.fetchall() 
 
@@ -338,6 +341,8 @@ def main():
 	# get the data from movies and tweets and return a list of string for future reference when outputing data
 	movie_languages = map(lambda x: "Movie {} has {} language(s): {}.".format(x[0], x[2], x[3]), movies_with_retweeted_tweets)
 
+	#make it a unique set
+	movie_languages = set(movie_languages)
 	#the way to print it to screen
 	# for one in movie_languages:
 	# 	print(type(one))
@@ -359,7 +364,8 @@ def main():
 	regex_result = []
 
 	for text in all_tweet_text:
-		regex = r"(RT.*)"
+		regex = r"RT .*: (.*)"
+		#print(text)
 		result = re.match(regex, text)
 		regex_result.append(result)
 
@@ -388,10 +394,61 @@ def main():
 	conn.close()
 
 	# OUTPUT:
-	OUTPUT_FILE = "206_fp_output"
+	OUTPUT_FILE = "206_fp_output.txt"
 	f = open(OUTPUT_FILE, 'w')
-	f.write("OUTPUT FOR THE PROJECT: ")
-	f.close
+
+	# print all movie names
+	for movie in movie_names:
+		f.write(movie)
+		f.write(", ")
+
+	#print the summary and date
+	f.write("Twitter summary on April 25th, 2017. \n\n")
+
+	# FIRST QUERY OUTPUT:
+	# print the most popular posters
+	f.write("Popular twitter posters(who have more than 5000 favorite counts) that posted about directors of movies in the list: \n")
+	for poster in popular_posters:
+		f.write(poster)
+		f.write("\n")
+
+	# SECOND QUERY OUTPUT:
+	# print the languages that the movie has
+	f.write("\n")
+	f.write("Movies of the directors that are tweeted about and retweeted a lot on twitter and the languages they have: \n")
+	for one in movie_languages:
+		f.write(one)
+		f.write("\n")
+
+
+	# THIRD QUERY OUTPUT:
+	f.write("\n")
+	f.write("The text of the retweeted tweets among the tweets about the directors of the movies in the list: \n")
+	for regex in regex_result:
+			if regex is not None:
+				f.write(regex.group(1))
+				f.write("\n")
+
+	# FOURTH QUERY OUTPUT:
+	f.write("\n")
+	f.write("Tweets searched by directors names grouped by the movie's title: \n")
+	i = 1;
+	for movie in diction_listvals:
+		f.write("The movie ")
+		print(movie[0])
+		f.write(movie[0])
+		f.write(" has the tweets: ")
+		for tweet in movie[1]:
+			f.write("TWEET ")
+			f.write(str(i))
+			f.write(": \n")
+			f.write(tweet)
+			f.write("\n")
+			f.write("\n")
+			i += 1
+
+	# close it after all outputs are done
+	f.close()
 
 
 # TEST CASES:
