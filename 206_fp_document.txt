@@ -1,0 +1,3 @@
+I chose option 2.
+
+I have two classes in the program. Class movie contains information about movies. An instance of Movie represents one movie we are testing about. Class Tweet contains information about the tweets of one query phrase. An instance of Tweet represents all information about one certain query phrase. For example, information about one director, and the director¡¯s name in this case is the query word. 

@@ -4,6 +4,7 @@ import requests
 import json
 import twitter_info 
 import sqlite3
+import collections
 
 # Information stored in twitter_info.py file
 consumer_key = twitter_info.consumer_key
@@ -359,7 +360,7 @@ query = "SELECT poster, tweet_text, from_movie, Users.description FROM Tweets IN
 cur.execute(query)
 tweets_from_popular_poster = cur.fetchall()
 
-
+#list comprehension
 popular_posters = [
 	one[0] 
 	for one in tweets_from_popular_poster
@@ -369,15 +370,25 @@ popular_posters = [
 query = "SELECT title, top_actor, num_languages, languages, Tweets.num_ret FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE Tweets.num_ret > 50" 
 cur.execute(query)
 movies_with_retweeted_tweets = cur.fetchall() #contains the movies that are talked about often on twitter
+#built-in map
+movie_languages = map(lambda x: "Movie {} has {} language(s): {}.".format(x[0], x[2], x[3]), movies_with_retweeted_tweets)
+
+for one in movie_languages:
+	print(type(one))
+	print(one)
+
+#use regular expressions
 
 
-query = "SELECT title, direcotor, released, Tweets.tweet_text FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE num_fav > 0"
+query = "SELECT title, Tweets.tweet_text FROM Movies INNER JOIN Tweets on Tweets.from_movie_id=Movies.id WHERE num_fav > 0"
 cur.execute(query)
 movies_with_favorite_tweets = cur.fetchall() #contains the movies about which tweets are favorited
-
-
-
-
+#use the collection and dictionary accumulation to get all the tweets for one movie into a list.
+diction_listvals = collections.defaultdict(list)
+for k, v in movies_with_favorite_tweets:
+	diction_listvals[k].append(v)
+#sort by the movie title name and then print out
+print(sorted(diction_listvals.items()))
 
 # Use the database connection to commit the changes to the database
 conn.commit()
@@ -438,3 +449,11 @@ class class_test_other(unittest.TestCase):
 
 ## Remember to invoke all your tests...
 #unittest.main(verbosity=2) 
+
+
+#the 4 mechanism
+#output to file
+#test cases
+#documentation
+#wrap it up
+#perfect the tables
