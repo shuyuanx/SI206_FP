@@ -57,13 +57,15 @@ def get_data_from_twitter(username_in):
 		twitter_data = CACHE_DICTION[unique_key]
 
 	else:
-		twitter_data = api.user_timeline(username_in)
+		twitter_data = api.search(q = username_in)
 		# but also, save in the dictionary to cache it!
 		CACHE_DICTION[unique_key] = twitter_data # add it to the dictionary -- new key-val pair
 		# and then write the whole cache dictionary, now with new info added, to the file, so it'll be there even after your program closes!
 		f = open(CACHE_FNAME,'w') # open the cache file for writing
 		f.write(json.dumps(CACHE_DICTION)) # make the whole dictionary holding data and unique identifiers into a json-formatted string, and write that wholllle string to a file so you'll have it next time!
 		f.close()
+
+		print(type(twitter_data))
 
 	return twitter_data
 
@@ -78,7 +80,7 @@ class Movie(object):
 		self.title = movie_in["Title"]
 		#this is a string
 		self.actors = movie_in["Actors"]
-		self.director = movie_in["Director"]
+		self.directors = movie_in["Director"]
 		self.writer = movie_in["Writer"]
 		self.released = movie_in["Released"]
 		self.language = movie_in["Language"]
@@ -88,6 +90,10 @@ class Movie(object):
 		actors_list = self.actors.split(",")
 		return actors_list
 
+	def get_list_of_directors(self):
+		directors_list = self.directors.split(",")
+		return directors_list
+
 	def get_director(self):
 		return self.director
 
@@ -95,8 +101,25 @@ class Movie(object):
 		return "The movie named {} is released in {}, directed by {}. Actors include {}, and the writer is {}. The language of the movie is {}. It is rated {} by IMDB.".format(self.title, self.director, self.actors, self.writer, self.language, self.rating)
 
 
-#class Tweet(object):
+class Tweet(object):
 	#define later: needs to represent twitter info for a user. I would search the directors for the movies, so this class will represent the tweets written by directors. 
+	def __init__(self, name_in):
+		self.name = name_in
+		self.text = ""
+
+	def get_info(self):
+		self.info = get_data_from_twitter(name)
+		return self.info
+
+	def parse_data(self):
+		self.text = self.info["statuses"][10]["text"]
+
+	def __str__(self):
+		return "The person's name is {}.".format(self.name)
+
+
+
+
 
 
 #write the main function: write the class instantiation and function calls in main. The process of actually obtaining and parsing data should go in main here. 
@@ -125,23 +148,33 @@ for data in movie_data_results:
 	movie_instances.append(Movie(data))
 
 
+one_director = movie_instances[0].get_list_of_directors()[0]
+tweet = Tweet(one_director)
+print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+tweet.get_info()
+tweet.parse_data()
+print(tweet.text)
+
 #call get data from twitter
 #get the tweets from the director of the first movie ghost
 twitter_directors = [];
 for movie in movie_instances:
-	twitter_directors.append(get_data_from_twitter(movie.director))
+	directors = movie.get_list_of_directors()
+	for director in directors:
+		twitter_directors.append(get_data_from_twitter(director))
+		print(director)
+
 
 #set up a table Movies for movies and input the data into the table
 # Make a connection to a new database tweets.db, and create a variable to hold the database cursor.
 conn = sqlite3.connect('movies_twitters.db') 
 cur = conn.cursor()
 
-# Write code to drop the Tweets table if it exists, and create the table (so you can run the program over and over), with the correct (4) column names and appropriate types for each.
-# HINT: Remember that the time_posted column should be the TIMESTAMP data type!
+
 cur.execute('DROP TABLE IF EXISTS Movies')
 
 table_spec = 'CREATE TABLE IF NOT EXISTS '
-table_spec += 'movies (movie_id INTEGER PRIMARY KEY, ' 
+table_spec += 'movies (title TEXT PRIMARY KEY, ' 
 table_spec += 'writer TEXT, ' 
 table_spec += 'actors TEXT, ' 
 table_spec += 'released TEXT, ' 
@@ -156,17 +189,15 @@ statement = 'INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?, ?)'
 
 #in the future loop, a int count will be initialized and increased in each iteration.
 #this int will be the primary key and id for the movie in the database
-id = 0;
 for movie in movie_instances:
 	movie_data = []
-	movie_data.append(id)
+	movie_data.append(movie.title)
 	movie_data.append(movie.writer)
 	movie_data.append(movie.actors)
 	movie_data.append(movie.released)
 	movie_data.append(movie.language)
 	movie_data.append(movie.rating)
-	movie_data.append(movie.director)
-	id += 1;
+	movie_data.append(movie.directors)
 
 	cur.execute(statement, movie_data)
 
@@ -175,10 +206,10 @@ for movie in movie_instances:
 cur.execute('DROP TABLE IF EXISTS Tweets')
 
 table_spec = 'CREATE TABLE IF NOT EXISTS '
-table_spec += 'Tweets (tweet_id INTEGER, ' 
+table_spec += 'Tweets (tweet_id INTEGER PRIMARY KEY, ' 
 table_spec += 'author TEXT, ' 
-table_spec += 'time_posted TIMESTAMP, ' 
 table_spec += 'tweet_text TEXT, ' 
+table_spec += 'user_mentioned TEXT, ' 
 table_spec += 'retweets INTEGER)' 
 cur.execute(table_spec)
 
@@ -187,16 +218,46 @@ statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
 #add more twitter information to twitters later
 
 # input the data for twitters into the table Tweets
-for director in twitter_directors:
-	for tweet in director:
-		tweet_info = []
-		tweet_info.append(tweet["id"])
-		tweet_info.append(tweet["user"]["screen_name"])
-		tweet_info.append(tweet["created_at"])
-		tweet_info.append(tweet["text"])
-		tweet_info.append(tweet["retweet_count"])
 
-		cur.execute(statement, tweet_info)
+
+
+for tweet in twitter_directors:
+	print("**************************************")
+	print(json.dumps(tweet["statuses"][10], indent=4))
+	print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+	print(tweet["statuses"][10]["id"])
+	print(tweet["statuses"][10]["text"])
+	print(tweet["statuses"][10]["user"]["screen_name"])
+	print(tweet["statuses"][10]["user"]["id"])
+	for user in tweet["statuses"][0]["entities"]["user_mentions"]:
+		print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+		print(json.dumps(user, indent=4))
+
+		print(user["screen_name"])
+		print(user["id"])
+
+	print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
+	
+	
+
+	print(type(tweet))
+	print(type(tweet["statuses"]))
+	tweet_info = []
+	tweet_info.append(tweet["statuses"][0]["id"])
+	tweet_info.append(tweet["statuses"][0]["id"])
+	tweet_info.append(tweet["statuses"][0]["id"])
+	tweet_info.append(tweet["statuses"][0]["id"])
+	tweet_info.append(tweet["statuses"][0]["id"])
+
+
+
+	tweet_info.append(tweet["user"]["screen_name"])
+	tweet_info.append(tweet["created_at"])
+	tweet_info.append(tweet["text"])
+	tweet_info.append(tweet["retweet_count"])
+
+	cur.execute(statement, tweet_info)
 
 # Use the database connection to commit the changes to the database
 conn.commit()
