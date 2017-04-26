@@ -449,7 +449,8 @@ def main():
 	f.write("The text of the retweeted tweets among the tweets about the directors of the movies in the list: \n")
 	for regex in regex_result:
 			if regex is not None:
-				f.write(regex.group(1))
+				text = regex.group(1)
+				f.write(text)
 				f.write("\n")
 
 	# FOURTH QUERY OUTPUT:
@@ -459,7 +460,7 @@ def main():
 	for movie in diction_listvals:
 		f.write("The movie ")
 		f.write(movie[0])
-		f.write(" has the tweets: ")
+		f.write(" has the tweets: \n")
 		for tweet in movie[1]:
 			f.write("TWEET ")
 			f.write(str(i))
